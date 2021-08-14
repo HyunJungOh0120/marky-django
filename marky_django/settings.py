@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     # library
     "rest_framework",
+    "rest_framework_simplejwt.authentication.JWTAuthentication",
 
     # local apps
 ]
@@ -136,5 +137,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # REST_FRAMEWORK
 REST_FRAMEWORK = {
-
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # )
 }

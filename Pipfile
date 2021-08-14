@@ -10,6 +10,7 @@ psycopg2 = "*"
 djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 autopep8 = "*"
