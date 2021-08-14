@@ -36,7 +36,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+AUTH_USER_MODEL = 'user.MyUser'
 
 # Application definition
 
@@ -50,10 +50,11 @@ INSTALLED_APPS = [
 
     # library
     "rest_framework",
-    "rest_framework_simplejwt.authentication.JWTAuthentication",
-    "corsheaders"
+    'rest_framework_simplejwt',
+    "corsheaders",
 
     # local apps
+    'user'
 ]
 
 MIDDLEWARE = [
@@ -185,6 +186,5 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
-
 
 django_heroku.settings(locals())
