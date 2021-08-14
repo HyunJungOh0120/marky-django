@@ -1,0 +1,8 @@
+Getting it to heroku#
+create a git repo in the root, commit, then push up to github.com repo
+
+create a new heroku project, connect your git repo to it, deploy
+
+run python manage.py migrate from the heroku dashboard or the heroku cli
+
+test you newly deployed api in postman.
