@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from .models import MyUser
 
 
@@ -12,19 +13,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['email', 'username', 'password']
 
     def validate(self, attrs):
-        email = attrs.get('email', '')
         username = attrs.get('username', '')
+        email = attrs.get('email', '')
 
         if not username.isalnum():
             raise serializers.ValidationError(
-                'The username should only contain alphanumeric characters')
+                {'username': 'The username should only contain alphanumeric characters'})
+
+        user = MyUser.objects.filter(email=email)
+        if user.exists():
+            raise serializers.ValidationError({
+                'email': 'This email is already used'
+            })
+
         return attrs
 
     def create(self, validated_data):
-        user = MyUser(
-            email=validated_data['email'],
-            username=validated_data['username']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+        """
+        Create and return a new user, given the validated data.
+        """
+        return MyUser.objects.create_user(**validated_data)
