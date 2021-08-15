@@ -11,11 +11,14 @@ from rest_framework.permissions import AllowAny
 
 
 class RegisterView(GenericAPIView):
+    """
+    POST api/user/register/
+    """
     serializer_class = RegisterSerializer
     queryset = MyUser.objects.all()
     permission_classes = [AllowAny]
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         user = request.data
         serializer = self.serializer_class(data=user)
 
