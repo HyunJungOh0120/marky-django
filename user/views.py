@@ -1,12 +1,21 @@
-from user.models import MyUser
-from django.shortcuts import render
 
-
-from rest_framework import status
+from rest_framework import exceptions, generics, status
+from rest_framework.authentication import CSRFCheck
 from rest_framework.generics import GenericAPIView
-from .serializers import RegisterSerializer
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
+
+from user.models import MyUser
+from django.conf import settings
+from .serializers import (ChangePasswordSerializer,
+                          CookieTokenRefreshSerializer, LoginSerializer,
+                          RegisterSerializer)
+
 # Create your views here.
 
 
@@ -30,8 +39,71 @@ class RegisterView(GenericAPIView):
         return Response(user_data, status=status.HTTP_201_CREATED)
 
 
-class LoginAPIView(GenericAPIView):
+# class MyObtainTokenPairView(TokenObtainPairView):
+#     """
+#     POST api/user/login
+#     """
+#     permission_classes = [AllowAny]
+#     serializer_class = MyTokenObtainPairSerializer
+
+
+class LoginView(APIView):
+    """
+    POST api/user/login/
+    """
+    permission_classes = (AllowAny,)
+    serializer_class = LoginSerializer
+
+    def post(self, request, *args, **kwargs):
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        response = Response(data, status=status.HTTP_200_OK)
+
+        cookie_max_age = 3600 * 24 * 14  # 14 days
+
+        response.set_cookie(
+            'refresh_token', data['refresh'], max_age=cookie_max_age, httponly=True)
+        del response.data['refresh']
+        response.set_cookie('access_token', data['access'], httponly=True)
+        return response
+
+
+class CookieTokenRefreshView(TokenRefreshView):
+    """
+    POST api/user/login/refresh/
+
+    """
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        if response.data.get('refresh'):
+            cookie_max_age = 3600 * 24 * 14  # 14 days
+            response.set_cookie(
+                'refresh_token', response.data['refresh'], max_age=cookie_max_age, httponly=True)
+            del response.data['refresh']
+        return super().finalize_response(request, response, *args, **kwargs)
+    serializer_class = CookieTokenRefreshSerializer
+
+
+class ChangePasswordView(generics.UpdateAPIView):
     queryset = MyUser.objects.all()
+    permission_classes = (IsAuthenticated)
+    serializer_class = ChangePasswordSerializer
+
+
+class LogoutView(APIView):
+    """
+    POST api/user/logout/
+    """
+    permission_classes = (IsAuthenticated)
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+        try:
+            refresh_token = request.data['refresh_token']
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
