@@ -60,6 +60,7 @@ class FileUploadView(APIView):
 
     def post(self, request, **kwargs):
         url_address = request.data.get('url_address')
+        # TODO req.user
         user = MyUser.objects.filter(pk=4).values('id')[0]['id']
         status = request.data.get('status') or None
         self.driver.get(url_address)

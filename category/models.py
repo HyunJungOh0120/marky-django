@@ -65,7 +65,7 @@ class Category(models.Model):
     slug = models.SlugField(max_length=100)
 
     def __str__(self) -> str:
-        return self.topic
+        return f'{self.name}-{self.topic}'
 
     class Meta:
         db_table = 'category'
