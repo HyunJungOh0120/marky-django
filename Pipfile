@@ -14,6 +14,12 @@ djangorestframework-simplejwt = "*"
 django-cors-headers = "*"
 django-heroku = "*"
 gunicorn = "*"
+requests-html = "*"
+selenium = "*"
+beautifulsoup4 = "*"
+pillow = "*"
+django-storages = "*"
+boto3 = "*"
 
 [dev-packages]
 autopep8 = "*"

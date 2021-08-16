@@ -11,7 +11,7 @@ class MyUserManager(BaseUserManager):
         """
         Creates and saves a User with the given email, username and password.
         """
-
+        other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
         other_fields.setdefault('is_active', True)
 
@@ -43,7 +43,7 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=40)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-
+    is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
 
     objects = MyUserManager()
