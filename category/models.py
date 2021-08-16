@@ -1,7 +1,5 @@
-
-from user.models import MyUser
 from django.db import models
-from user.models import MyUser
+from django.conf import settings
 # Create your models here.
 
 
@@ -59,7 +57,8 @@ class Category(models.Model):
             ('event', 'Event'),
         ))
     ]
-    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
     topic = models.CharField(max_length=40, choices=CATEGORY_CHOICES)
     name = models.CharField(max_length=40, blank=False)
     parent = models.ForeignKey('self', on_delete=models.PROTECT)
@@ -67,3 +66,6 @@ class Category(models.Model):
 
     def __str__(self) -> str:
         return self.topic
+
+    class Meta:
+        db_table = 'category'

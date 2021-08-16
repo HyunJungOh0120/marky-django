@@ -20,6 +20,7 @@ beautifulsoup4 = "*"
 pillow = "*"
 django-storages = "*"
 boto3 = "*"
+python-slugify = "*"
 
 [dev-packages]
 autopep8 = "*"

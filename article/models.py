@@ -1,7 +1,6 @@
-
 from django.db import models
-from django.db.models.fields.related import ForeignKey
-from user.models import MyUser
+from django.conf import settings
+
 from category.models import Category
 # Create your models here.
 
@@ -14,9 +13,11 @@ class Article(models.Model):
 
     url_address = models.CharField(max_length=300)
     title = models.CharField(max_length=300, blank=True, null=True)
-    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    image = models.TextField(blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
-    pdf = models.FileField(upload_to='media/', null=True, blank=True)
+    file_url = models.TextField(null=True, blank=True)
     slug = models.SlugField(max_length=120)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
@@ -26,6 +27,9 @@ class Article(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+    class Meta:
+        db_table = 'article'
 
 
 def user_directory_path(instance, filename):
