@@ -21,6 +21,7 @@ pillow = "*"
 django-storages = "*"
 boto3 = "*"
 python-slugify = "*"
+pyjwt = "*"
 
 [dev-packages]
 autopep8 = "*"

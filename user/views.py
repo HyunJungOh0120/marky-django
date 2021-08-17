@@ -1,5 +1,5 @@
 
-from rest_framework import generics, status
+from rest_framework import generics,  status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -9,14 +9,15 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken, Token, TokenError
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
-
+from django.conf import settings
 from user.models import MyUser
 from django.conf import settings
 from .serializers import (ChangePasswordSerializer,
                           CookieTokenRefreshSerializer, LoginSerializer,
                           RegisterSerializer)
-
+import jwt
 # Create your views here.
 
 
@@ -76,6 +77,7 @@ class CookieTokenRefreshView(TokenRefreshView):
     POST api/user/login/refresh/
 
     """
+    serializer_class = CookieTokenRefreshSerializer
 
     def finalize_response(self, request, response, *args, **kwargs):
         if response.data.get('refresh'):
@@ -84,7 +86,6 @@ class CookieTokenRefreshView(TokenRefreshView):
                 'refresh_token', response.data['refresh'], max_age=cookie_max_age, httponly=True)
             del response.data['refresh']
         return super().finalize_response(request, response, *args, **kwargs)
-    serializer_class = CookieTokenRefreshSerializer
 
 
 class ChangePasswordView(generics.UpdateAPIView):

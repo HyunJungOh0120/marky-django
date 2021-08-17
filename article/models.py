@@ -5,20 +5,22 @@ from category.models import Category
 # Create your models here.
 
 
+STATUS_CHOICES = [
+    ('PUBLIC', 'Public'),
+    ('SECRET', 'Secret')
+]
+
+
 class Article(models.Model):
-    STATUS_CHOICES = [
-        ('PUBLIC', 'Public'),
-        ('SECRET', 'Secret')
-    ]
 
     url_address = models.CharField(max_length=300)
     title = models.CharField(max_length=300, blank=True, null=True)
-    image = models.TextField(blank=True)
+    image = models.TextField(blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
     file_url = models.TextField(null=True, blank=True)
-    slug = models.SlugField(max_length=120)
+    slug = models.SlugField(max_length=120, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default='SECRET')
@@ -26,7 +28,7 @@ class Article(models.Model):
                                  null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self) -> str:
-        return self.title
+        return f'{self.url_address}'
 
     class Meta:
         db_table = 'article'
