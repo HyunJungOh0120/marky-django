@@ -191,16 +191,18 @@ from .serializers import ArticleSerializer
 
 
 class ArticleListView(generics.ListAPIView):
-
+    permission_classes = (IsAuthenticated,)
     serializer_class = ArticleSerializer
+    """
+    /api/articles?username=<str:username>
+    """
 
     def get_queryset(self):
-        user = self.request.user.id
-        articles = Article.objects.filter(user=user)
-        return super().get_queryset()
-
-    def list(self, request):
-        pass
+        queryset = Article.objects.all()
+        username = self.request.query_params.get('username')
+        if username is not None:
+            queryset = queryset.filter(user__username=username)
+        return queryset
 
 
 class ArticlePostUrl(APIView):
