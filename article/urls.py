@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import ArticlePostUrl
+from .views import ArticleAPIView, OneArticleAPIView
 
 
 urlpatterns = [
-    path('', ArticlePostUrl.as_view())
+    path('', ArticleAPIView.as_view()),
+    path('<int:id>', OneArticleAPIView.as_view())
+
 ]

@@ -19,12 +19,15 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers, serializers, viewsets
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     path('api/user/', include('user.urls')),
     path('api/articles/', include('article.urls'))
+
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
