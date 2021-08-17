@@ -8,7 +8,7 @@ from rest_framework import serializers, status
 from .models import Article, STATUS_CHOICES
 
 
-class FileUploadSerializer(serializers.ModelSerializer):
+class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = '__all__'
