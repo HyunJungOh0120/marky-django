@@ -90,6 +90,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
     def get_token(cls, user):
         token = RefreshToken.for_user(user)
+        token['username'] = user.username
         return token
 
 

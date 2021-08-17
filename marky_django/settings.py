@@ -168,7 +168,6 @@ DEFAULT_FILE_STORAGE = 'marky_django.storages.MediaStorage'
 # MEDIA_URL = '/media/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # User name,Password,Access key ID,Secret access key,Console login link
-# marky-agnes,,AKIAXMSV3NTP5IL5LXTX,xUDKgQYkKVvLdo24+HQo0hsgaxyCEV2Asy0cxlcG,https://508059938015.signin.aws.amazon.com/console
 
 
 # Default primary key field type
