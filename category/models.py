@@ -36,6 +36,13 @@ class Category(models.Model):
             ('show', 'Show'),
             ('craft', 'Craft'),
         )),
+        ('IT', (
+            ('IT Internet', 'IT Internet'),
+            ('Mobile', 'Mobile'),
+            ('Game', 'Game'),
+            ('Science', 'Science'),
+            ('IT Product', 'IT Product'),
+        )),
         ('Sports', (
             ('sports', 'Sports'),
             ('sports', 'Soccer'),
@@ -61,7 +68,8 @@ class Category(models.Model):
                              on_delete=models.CASCADE)
     topic = models.CharField(max_length=40, choices=CATEGORY_CHOICES)
     name = models.CharField(max_length=40, blank=False)
-    parent = models.ForeignKey('self', on_delete=models.PROTECT)
+    parent = models.ForeignKey(
+        'self', on_delete=models.PROTECT, blank=True, null=True)
     slug = models.SlugField(max_length=100)
 
     def __str__(self) -> str:

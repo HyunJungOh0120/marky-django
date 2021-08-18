@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .models import Memo
 from rest_framework.views import APIView
 from .serializers import MemoSerializer
