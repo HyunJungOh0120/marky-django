@@ -1,11 +1,8 @@
-from re import A
-
-
 from django.utils.translation import gettext_lazy as _
-from rest_framework import serializers, status
+from rest_framework import serializers
 
 
-from .models import Article, STATUS_CHOICES
+from .models import Article
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -26,7 +23,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             'url_address', instance.url_address)
         instance.image = validated_data.get('image', instance.image)
         instance.user = validated_data.get('user', instance.user)
-        instance.status = validated_data.get('status', instance.status)
+
         instance.slug = validated_data.get('slug', instance.slug)
         instance.file_url = validated_data.get('file_url', instance.file_url)
         instance.category = validated_data.get('category', instance.category)

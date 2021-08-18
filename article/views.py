@@ -1,12 +1,25 @@
-import io as BytesIO
+import asyncio
+import io
+
 import os
 
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen.canvas import Canvas
+from reportlab.lib.utils import ImageReader
+
 import boto3
+from botocore.vendored.six import BytesIO
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.core.files.storage import default_storage
+from django.http import FileResponse
+
+
 from django.shortcuts import get_object_or_404
+import json
+from PIL import Image
+
+from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
 from rest_framework import generics
 from rest_framework import status
@@ -20,6 +33,31 @@ from user.models import MyUser
 
 from .models import Article
 from .serializers import ArticleSerializer
+
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+
+class GetPdfView(APIView):
+
+    @permission_classes(AllowAny)
+    def post(self, request):
+        img_url = request.data.get('file_url')
+        slug = request.data.get('slug')
+        imgreal = ImageReader(img_url)
+
+        buffer = io.BytesIO()
+        p = Canvas(buffer)
+
+        p.drawImage(imgreal, 10, 10, mask='auto')
+        p.showPage()
+        p.save()
+        buffer.seek(0)
+        res = FileResponse(buffer, as_attachment=True, filename=f'{slug}.pdf')
+        res1 = json.dumps(res)
+        res1 = json.loads(res1)
+        return Response(res1)
 
 
 class OneArticleAPIView(APIView):
@@ -58,22 +96,9 @@ class OneArticleAPIView(APIView):
             return Response({"message": "You cannot delete this article"})
 
         obj = qs.first()
-        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-        item_key = f'{request.user.id}/{obj.title}'
-        self.remove_aws_object(bucket_name, item_key)
+        obj.delete()
 
         return Response({"message": "Article is removed"}, status=status.HTTP_204_NO_CONTENT)
-
-    def remove_aws_object(self, bucket_name, item_key):
-        folder = 'media/articles/'
-        delete_key = folder + item_key
-        s3_client = boto3.client('s3',
-                                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                                 )
-        delete = s3_client.delete_object(
-            Bucket=bucket_name, Key=delete_key)
-        print(delete)
 
 
 class ArticleAPIView(APIView):
@@ -88,19 +113,41 @@ class ArticleAPIView(APIView):
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    async def run(self, playwright, url_address):
+        chromium = playwright.chromium
+        browser = await chromium.launch()
+        page = await browser.new_page()
+        await page.goto(url_address)
+        img_bytes = await page.screenshot(full_page=True)
+        pil_image = Image.open(io.BytesIO(img_bytes))
+
+        pil_image.seek(0)
+
+        await browser.close()
+        return pil_image
+
+    async def main(self, url_address):
+        async with async_playwright() as playwright:
+            img = await self.run(playwright, url_address)
+            return img
+
+    def upload_cloudinary(self, file, user, slug):
+        response = cloudinary.uploader.upload(file,
+                                              folder=f'article/{user}/',
+                                              public_id=slug,
+                                              overwrite=True,
+                                              )
+        return response
+
     def playwright(self, url_address):
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page()
             page.goto(
                 url_address)
-            img = page.screenshot(full_page=True)
-            if (img is not None):
-                buffer = BytesIO.BytesIO()
-                buffer.write(img)
-                return buffer
+            img = page.screenshot(path='sample.png', full_page=True)
 
-            browser.close()
+            return img
 
     @permission_classes(IsAuthenticated)
     def post(self, request, **kwargs):
@@ -108,7 +155,6 @@ class ArticleAPIView(APIView):
         POST /api/article/
         '''
         url_address = request.data.get('url_address')
-        status = request.data.get('status') or None
 
         print('💚', request.user)
 
@@ -130,7 +176,6 @@ class ArticleAPIView(APIView):
             'title': title,
             'description': description,
             'url_address': url_address,
-            'status': status,
             'image': img,
             'user': user,
             'slug': slug,
@@ -140,26 +185,25 @@ class ArticleAPIView(APIView):
 
         serializer.is_valid(raise_exception=True)
 
-        file_obj = self.playwright(url_address)
-        print(file_obj)
+        # * sync
+        img = self.playwright(url_address)
+        response = self.upload_cloudinary(img, user, slug)
+        img_url = response['url']
 
-        file_directory_within_bucket = f'articles/{user}'
-        file_path_within_bucket = os.path.join(
-            file_directory_within_bucket,
-            title
-        )
-        media_storage = default_storage
+        # * async
+        # image = asyncio.run(self.main(url_address))
 
-        media_storage.save(file_path_within_bucket, file_obj)
-        file_url = media_storage.url(file_path_within_bucket)
+        '''
+        Key => articles/2/how to deploy django
+        '''
+        data['file_url'] = img_url
 
-        data['file_url'] = file_url
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         article = serializer.data
-        print(article)
+
         print('article 💚', article)
 
         return Response(article, status=res_status.HTTP_201_CREATED)

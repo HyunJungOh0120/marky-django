@@ -5,12 +5,6 @@ from category.models import Category
 # Create your models here.
 
 
-STATUS_CHOICES = [
-    ('PUBLIC', 'Public'),
-    ('SECRET', 'Secret')
-]
-
-
 class Article(models.Model):
 
     url_address = models.CharField(max_length=300)
@@ -22,8 +16,6 @@ class Article(models.Model):
     file_url = models.TextField(null=True, blank=True)
     slug = models.SlugField(max_length=120, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default='SECRET')
     category = models.ForeignKey(Category,
                                  null=True, blank=True, on_delete=models.SET_NULL)
 

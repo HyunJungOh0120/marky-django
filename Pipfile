@@ -21,6 +21,9 @@ django-storages = "*"
 boto3 = "*"
 python-slugify = "*"
 pyjwt = "*"
+cloudinary = "*"
+img2pdf = "*"
+reportlab = "*"
 
 [dev-packages]
 autopep8 = "*"

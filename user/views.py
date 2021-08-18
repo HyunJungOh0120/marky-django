@@ -33,12 +33,11 @@ class RegisterView(GenericAPIView):
         user = request.data
         serializer = self.serializer_class(data=user)
 
-        serializer.is_valid(raise_exception=True)
-
-        serializer.save()
-        user_data = serializer.data
-
-        return Response(user_data, status=status.HTTP_201_CREATED)
+        if serializer.is_valid(raise_exception=True):
+            newuser = serializer.save()
+            if newuser:
+                return Response(status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # class MyObtainTokenPairView(TokenObtainPairView):
@@ -61,15 +60,7 @@ class LoginView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        response = Response(data, status=status.HTTP_200_OK)
-
-        cookie_max_age = 3600 * 24 * 14  # 14 days
-
-        response.set_cookie(
-            'refresh_token', data['refresh'], max_age=cookie_max_age, httponly=True)
-        del response.data['refresh']
-        response.set_cookie('access_token', data['access'], httponly=True)
-        return response
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class CookieTokenRefreshView(TokenRefreshView):
@@ -98,16 +89,16 @@ class LogoutView(APIView):
     """
     POST api/user/logout/
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         try:
-            refresh_token = request.COOKIES['refresh_token']
+            refresh_token = request.data['refresh_token']
             token = RefreshToken(refresh_token)
             token.blacklist()
             return Response('success', status=status.HTTP_205_RESET_CONTENT)
-        except TokenError:
-            return Response('fail', status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 # class LogoutAPIView(generics.GenericAPIView):
