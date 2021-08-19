@@ -26,7 +26,8 @@ urlpatterns = [
 
     path('api/user/', include('user.urls')),
     path('api/articles/', include('article.urls')),
-    path('api/memo/', include('memo.urls'))
+    path('api/memo/', include('memo.urls')),
+    path('api/category/', include('category.urls'))
 
 
 ]

@@ -6,35 +6,35 @@ from django.conf import settings
 class Category(models.Model):
     CATEGORY_CHOICES = [
         ('Life', (
-            ('daily', 'Daily',),
-            ('relationship', 'RelationShip',),
-            ('family', 'Family',),
-            ('pets', 'Pets',),
-            ('hobby', 'Hobby',),
-            ('photography', 'Photography',),
-            ('cook', 'Cook',),
-            ('car', 'Car',),
-            ('interior', 'Interior',),
-            ('fashion/beauty', 'Fashion/Beauty',),
-            ('health', 'Health',),
+            ('Daily', 'Daily',),
+            ('RelationShip', 'RelationShip',),
+            ('Family', 'Family',),
+            ('Pets', 'Pets',),
+            ('Hobby', 'Hobby',),
+            ('Photography', 'Photography',),
+            ('Cook', 'Cook',),
+            ('Car', 'Car',),
+            ('Interior', 'Interior',),
+            ('Fashion/Beauty', 'Fashion/Beauty',),
+            ('Health', 'Health',),
         )),
         ('Travel/Restaurants', (
-            ('domestic', 'Domestic',),
-            ('oversea', 'Oversea',),
-            ('camping/hiking', 'Camping/Hiking',),
-            ('restaurants', 'Restaurants',),
-            ('cafe', 'Cafe',),
+            ('Domestic', 'Domestic',),
+            ('Oversea', 'Oversea',),
+            ('Camping/Hiking', 'Camping/Hiking',),
+            ('Restaurants', 'Restaurants',),
+            ('Cafe', 'Cafe',),
         )),
         ('Entertainment', (
-            ('tv', 'Tv',),
-            ('star', 'Star'),
-            ('movie', 'Movie'),
-            ('music', 'Music'),
-            ('book', 'Book'),
-            ('animation', 'Animation'),
-            ('exhibition', 'Exhibition'),
-            ('show', 'Show'),
-            ('craft', 'Craft'),
+            ('Tv', 'Tv',),
+            ('Star', 'Star'),
+            ('Movie', 'Movie'),
+            ('Music', 'Music'),
+            ('Book', 'Book'),
+            ('Animation', 'Animation'),
+            ('Exhibition', 'Exhibition'),
+            ('Show', 'Show'),
+            ('Craft', 'Craft'),
         )),
         ('IT', (
             ('IT Internet', 'IT Internet'),
@@ -44,24 +44,24 @@ class Category(models.Model):
             ('IT Product', 'IT Product'),
         )),
         ('Sports', (
-            ('sports', 'Sports'),
-            ('sports', 'Soccer'),
-            ('volleyball', 'Volleyball'),
-            ('baseball', 'Baseball'),
-            ('basketball', 'Basketball'),
-            ('golf', 'Golf'),
+            ('Sports', 'Sports'),
+            ('Soccer', 'Soccer'),
+            ('Volleyball', 'Volleyball'),
+            ('Baseball', 'Baseball'),
+            ('Basketball', 'Basketball'),
+            ('Golf', 'Golf'),
         )),
         ('Current', (
-            ('government', 'Government'),
-            ('society', 'Society'),
-            ('education', 'Education'),
-            ('international', 'International'),
-            ('business', 'Business'),
-            ('economy', 'Economy'),
-            ('job', 'Job'),
+            ('Government', 'Government'),
+            ('Society', 'Society'),
+            ('Education', 'Education'),
+            ('International', 'International'),
+            ('Business', 'Business'),
+            ('Economy', 'Economy'),
+            ('Job', 'Job'),
         )),
         ('Event', (
-            ('event', 'Event'),
+            ('Event', 'Event'),
         ))
     ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -69,8 +69,9 @@ class Category(models.Model):
     topic = models.CharField(max_length=40, choices=CATEGORY_CHOICES)
     name = models.CharField(max_length=40, blank=False)
     parent = models.ForeignKey(
-        'self', on_delete=models.PROTECT, blank=True, null=True)
-    slug = models.SlugField(max_length=100)
+        'self', on_delete=models.SET_NULL, blank=True, null=True, related_name='children')
+
+    slug = models.SlugField(blank=True, max_length=100)
 
     def __str__(self) -> str:
         return f'{self.name}-{self.topic}'
