@@ -1,10 +1,6 @@
 from article.models import Article
 from article.serializers import ArticleSerializer
 from rest_framework import permissions, status
-from rest_framework.decorators import (action, api_view,
-                                       authentication_classes,
-                                       permission_classes)
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from slugify.slugify import slugify
@@ -84,6 +80,30 @@ class CategoryAPIView(APIView):
         return Response({"message": "Category is removed"}, status=status.HTTP_204_NO_CONTENT)
 
 
+class Node(object):
+    def __init__(self, name, size=None):
+        self.name = name
+        self.children = []
+        self.size = size
+
+    def child(self, cname, size=None):
+        child_found = [c for c in self.children if c.name == cname]
+        if not child_found:
+            _child = Node(cname, size)
+            self.children.append(_child)
+        else:
+            _child = child_found[0]
+        return _child
+
+    def as_dict(self):
+        res = {'name': self.name}
+        if self.size is None:
+            res['children'] = [c.as_dict() for c in self.children]
+        else:
+            res['size'] = self.size
+        return res
+
+
 class CategoriesAPIView(APIView):
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -93,11 +113,9 @@ class CategoriesAPIView(APIView):
     def get(self, request):
 
         user = request.user.id
-        qs = self.queryset.filter(user=user)
+        qs = self.queryset.filter(user=user, parent=None)
 
         serializer = self.serializer_class(qs, many=True)
-        if serializer.is_valid(raise_exception=True):
-            data = serializer.validated_data
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 

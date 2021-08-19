@@ -18,3 +18,4 @@ class Memo(models.Model):
 
     class Meta:
         db_table = 'memo'
+        ordering = ['created_at']
