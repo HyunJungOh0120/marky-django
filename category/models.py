@@ -68,9 +68,6 @@ class Category(models.Model):
                              on_delete=models.CASCADE)
     topic = models.CharField(max_length=40, choices=CATEGORY_CHOICES)
     name = models.CharField(max_length=40, blank=False)
-    parent = models.ForeignKey(
-        'self', on_delete=models.SET_NULL, blank=True, null=True, related_name='children')
-
     slug = models.SlugField(blank=True, max_length=100)
 
     def __str__(self) -> str:

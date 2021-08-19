@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 
+
+from treebeard.mp_tree import MP_Node
 from category.models import Category
 # Create your models here.
 

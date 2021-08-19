@@ -24,6 +24,7 @@ pyjwt = "*"
 cloudinary = "*"
 img2pdf = "*"
 reportlab = "*"
+django-treebeard = "*"
 
 [dev-packages]
 autopep8 = "*"
