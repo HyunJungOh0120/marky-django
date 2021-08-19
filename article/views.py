@@ -1,26 +1,25 @@
 import asyncio
 import io
-
+import json
 import os
 
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen.canvas import Canvas
-from reportlab.lib.utils import ImageReader
-
 import boto3
-from botocore.vendored.six import BytesIO
+import cloudinary
+import cloudinary.api
+import cloudinary.uploader
 import requests
+from botocore.vendored.six import BytesIO
 from bs4 import BeautifulSoup
 from django.conf import settings
+from django.db.models import query
 from django.http import FileResponse
-
-
 from django.shortcuts import get_object_or_404
-import json
 from PIL import Image
-
 from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen.canvas import Canvas
 from rest_framework import generics
 from rest_framework import status
 from rest_framework import status as res_status
@@ -33,10 +32,6 @@ from user.models import MyUser
 
 from .models import Article
 from .serializers import ArticleSerializer
-
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 
 
 class GetPdfView(APIView):
@@ -108,8 +103,18 @@ class ArticleAPIView(APIView):
     def get(self, request, *args, **kwargs):
         queryset = Article.objects.all()
         username = self.request.query_params.get('username')
+        category = self.request.query_params.get('category')
+        search = self.request.query_params.get('search')
+        print('CATEGORY@@!', category)
         if username is not None:
             queryset = queryset.filter(user__username=username)
+            if category is not None:
+                queryset = queryset.filter(category__slug=category)
+
+        if search is not None:
+            print('SEARCH@@!', search)
+            queryset = queryset.filter(title__icontains=search)
+
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

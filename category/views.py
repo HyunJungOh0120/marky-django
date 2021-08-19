@@ -6,10 +6,16 @@ from rest_framework.views import APIView
 from slugify.slugify import slugify
 
 
-from .models import Category
+from .models import Category, CATEGORY_CHOICES
 from .serializers import CategorySerializer
 
+
 # Create your views here.
+class ChoicesView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        return Response(CATEGORY_CHOICES)
 
 
 class CategoryAPIView(APIView):

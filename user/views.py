@@ -1,23 +1,19 @@
 
-from rest_framework import generics,  status
+
+from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
 
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import RefreshToken, Token, TokenError
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView)
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer
-
-from django.conf import settings
 from user.models import MyUser
-from django.conf import settings
+
 from .serializers import (ChangePasswordSerializer,
                           CookieTokenRefreshSerializer, LoginSerializer,
-                          RegisterSerializer)
-import jwt
+                          MyUserSerializer, RegisterSerializer)
+
 # Create your views here.
 
 
@@ -47,6 +43,20 @@ class RegisterView(GenericAPIView):
 #     permission_classes = [AllowAny]
 #     serializer_class = MyTokenObtainPairSerializer
 
+class UserView(APIView):
+    serializer_class = MyUserSerializer
+    model = MyUser
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, queryset=None):
+        obj = self.request.user
+        return obj
+
+    def get(self, request):
+        obj = self.get_object()
+        serializer = self.serializer_class(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class LoginView(APIView):
     """
@@ -56,6 +66,7 @@ class LoginView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
 
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -79,10 +90,28 @@ class CookieTokenRefreshView(TokenRefreshView):
         return super().finalize_response(request, response, *args, **kwargs)
 
 
-class ChangePasswordView(generics.UpdateAPIView):
-    queryset = MyUser.objects.all()
-    permission_classes = (IsAuthenticated)
+class ChangePasswordView(APIView):
     serializer_class = ChangePasswordSerializer
+    model = MyUser
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def put(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            # Check old password
+            old_password = serializer.data.get("old_password")
+            if not self.object.check_password(old_password):
+                return Response({"old_password": ["Wrong password"]}, status=status.HTTP_400_BAD_REQUEST)
+            self.object.set_password(serializer.data.get('new_password'))
+            self.object.save()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView):

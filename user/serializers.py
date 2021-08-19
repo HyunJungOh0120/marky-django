@@ -1,15 +1,21 @@
 
 
-from rest_framework import serializers, status
 from django.contrib import auth
+from django.contrib.auth.password_validation import validate_password
+from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers, status
 from rest_framework.exceptions import AuthenticationFailed
-
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
-from django.utils.translation import gettext_lazy as _
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import MyUser
+
+
+class MyUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MyUser
+        fields = ['id', 'username', 'last_login', 'email', 'date_joined']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -44,24 +50,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         return MyUser.objects.create_user(**validated_data)
 
 
-# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-
-#     def validate(self, attrs):
-#         data = super().validate(attrs)
-#         refresh = self.get_token(self.user)
-#         data['refresh'] = str(refresh)
-#         data['access'] = str(refresh.access_token)
-
-#         data['user_id'] = self.user.id
-#         print(data)
-#         return data
-
-#     @classmethod
-#     def get_token(cls, user):
-#         token = super(MyTokenObtainPairSerializer, cls).get_token(user)
-#         return token
-
-
 class LoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -83,7 +71,6 @@ class LoginSerializer(serializers.ModelSerializer):
         refresh = self.get_token(user)
 
         return {
-            'user_id': user.id,
             'refresh': str(refresh),
             'access': str(refresh.access_token)
         }
@@ -106,31 +93,14 @@ class CookieTokenRefreshSerializer(TokenRefreshSerializer):
                 'No valid token found in cookie \'refresh_token\'')
 
 
-class ChangePasswordSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
-    password2 = serializers.CharField(write_only=True, required=True)
-    old_password = serializers.CharField(write_only=True, required=True)
+class ChangePasswordSerializer(serializers.Serializer):
+    model = MyUser
+    """
+    Serializer for password change endpoint
+    """
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
 
-    class Meta:
-        model = MyUser
-        fields = ['old_password', 'password', 'password2']
-
-    def validate(self, attrs):
-        if attrs.get('password') != attrs.get('password2'):
-            raise serializers.ValidationError(
-                {"password": "Password doesn't match"})
-
-        return attrs
-
-    def validate_old_password(self, value):
-        user = self.context['request'].user
-        if not user.check_password(value):
-            raise serializers.ValidationError(
-                {'old_password': "old password is not correct"})
-        return value
-
-    def update(self, instance, validated_data):
-        instance.set_password(validated_data['password'])
-        instance.save()
-
-        return instance
+    # def validate_new_password(self, value):
+    #     validate_password(value)
+    #     return value
