@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import django_heroku
+
 from pathlib import Path
 import environ
 import os
@@ -76,10 +78,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOW_ORIGINS = [
-    'http://127.0.0.1:3000',
-    'http://localhost:3000'
-]
+# <---- will allow all origins, read cors docs to limit
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 ROOT_URLCONF = "marky_django.urls"

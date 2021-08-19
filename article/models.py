@@ -1,9 +1,8 @@
-from django.db import models
-from django.conf import settings
-
-
-from treebeard.mp_tree import MP_Node
 from category.models import Category
+from django.conf import settings
+from django.db import models
+from treebeard.mp_tree import MP_Node
+
 # Create your models here.
 
 
@@ -26,6 +25,7 @@ class Article(models.Model):
 
     class Meta:
         db_table = 'article'
+        ordering = ['-created_at']
 
 
 def user_directory_path(instance, filename):
