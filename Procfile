@@ -1,1 +1,1 @@
-web: gunicorn todoproject.wsgi
+web: gunicorn marky_django.wsgi
