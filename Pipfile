@@ -18,13 +18,9 @@ requests-html = "*"
 beautifulsoup4 = "*"
 pillow = "*"
 django-storages = "*"
-boto3 = "*"
 python-slugify = "*"
 pyjwt = "*"
 cloudinary = "*"
-img2pdf = "*"
-reportlab = "*"
-django-treebeard = "*"
 
 [dev-packages]
 autopep8 = "*"

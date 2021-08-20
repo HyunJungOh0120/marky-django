@@ -1,25 +1,22 @@
-import asyncio
+
 import io
 import json
-import os
 
-import boto3
+
 import cloudinary
 import cloudinary.api
 import cloudinary.uploader
 import requests
-from botocore.vendored.six import BytesIO
+
 from bs4 import BeautifulSoup
-from django.conf import settings
-from django.db.models import query
+
+
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from PIL import Image
 from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.utils import ImageReader
-from reportlab.pdfgen.canvas import Canvas
+
 from rest_framework import generics
 from rest_framework import status
 from rest_framework import status as res_status
