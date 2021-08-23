@@ -42,7 +42,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'user.MyUser'
-
+SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = [
