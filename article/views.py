@@ -198,7 +198,7 @@ class ArticleAPIView(APIView):
         #! playwright
         # img = self.playwright(url_address)
         # url = self.upload_cloudinary(img, user, slug)
-        url = self.upload_cloudinary(url_address, user, slug)
+        # url = self.upload_cloudinary(url_address, user, slug)
 
         # img_url = url
         '''
