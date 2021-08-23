@@ -1,22 +1,21 @@
 
+import base64
 import io
 import json
-
+import time
+from io import BytesIO
+from os import fwalk
 
 import cloudinary
 import cloudinary.api
 import cloudinary.uploader
+import pdfkit
 import requests
-
 from bs4 import BeautifulSoup
-
-
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from PIL import Image
-from playwright.async_api import async_playwright
-from playwright.sync_api import sync_playwright
-
+# from playwright.sync_api import sync_playwright
 from rest_framework import generics
 from rest_framework import status
 from rest_framework import status as res_status
@@ -24,32 +23,14 @@ from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from selenium import webdriver
 from slugify import slugify
 from user.models import MyUser
 
 from .models import Article
 from .serializers import ArticleSerializer
 
-
-class GetPdfView(APIView):
-
-    @permission_classes(AllowAny)
-    def post(self, request):
-        img_url = request.data.get('file_url')
-        slug = request.data.get('slug')
-        imgreal = ImageReader(img_url)
-
-        buffer = io.BytesIO()
-        p = Canvas(buffer)
-
-        p.drawImage(imgreal, 10, 10, mask='auto')
-        p.showPage()
-        p.save()
-        buffer.seek(0)
-        res = FileResponse(buffer, as_attachment=True, filename=f'{slug}.pdf')
-        res1 = json.dumps(res)
-        res1 = json.loads(res1)
-        return Response(res1)
+# from webdriver_manager.chrome import ChromeDriverManager
 
 
 class OneArticleAPIView(APIView):
@@ -93,6 +74,17 @@ class OneArticleAPIView(APIView):
         return Response({"message": "Article is removed"}, status=status.HTTP_204_NO_CONTENT)
 
 
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument('--disable-dev-shm-usage')
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument('--enable-print-browser')
+chrome_options.add_argument('--disable-gpu')
+chrome_options.binary_location = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+driver = webdriver.Chrome(
+    executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options)
+
+
 class ArticleAPIView(APIView):
     serializer_class = ArticleSerializer
 
@@ -115,41 +107,54 @@ class ArticleAPIView(APIView):
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    async def run(self, playwright, url_address):
-        chromium = playwright.chromium
-        browser = await chromium.launch()
-        page = await browser.new_page()
-        await page.goto(url_address)
-        img_bytes = await page.screenshot(full_page=True)
-        pil_image = Image.open(io.BytesIO(img_bytes))
-
-        pil_image.seek(0)
-
-        await browser.close()
-        return pil_image
-
-    async def main(self, url_address):
-        async with async_playwright() as playwright:
-            img = await self.run(playwright, url_address)
-            return img
-
     def upload_cloudinary(self, file, user, slug):
+
         response = cloudinary.uploader.upload(file,
                                               folder=f'article/{user}/',
-                                              public_id=slug,
                                               overwrite=True,
+
                                               )
-        return response
 
-    def playwright(self, url_address):
-        with sync_playwright() as p:
-            browser = p.chromium.launch()
-            page = browser.new_page()
-            page.goto(
-                url_address)
-            img = page.screenshot(path='sample.png', full_page=True)
+        url = response['url']
 
-            return img
+        print('💥', response)
+        return url
+
+    # def playwright(self, url_address):
+    #     with sync_playwright() as p:
+    #         browser = p.chromium.launch()
+    #         page = browser.new_page()
+    #         page.goto(
+    #             url_address)
+    #         img = page.screenshot(path='sample.png', full_page=True)
+    #         browser.close()
+    #         return img
+
+    def screenshot(self, options={}):
+        page_rect = driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
+        base_64_png = driver.execute_cdp_cmd(
+            "Page.captureScreenshot",
+            {
+                "format": "png",
+                "captureBeyondViewport": True,
+                "clip": {
+                    "width": page_rect["contentSize"]["width"],
+                    "height": page_rect["contentSize"]["height"],
+                    "x": 0,
+                    "y": 0,
+                    "scale": 1
+                }
+            })
+
+        buffer = io.BytesIO()
+        content = base64.b64decode(base_64_png['data'])
+        buffer.write(content)
+        buffer.seek(0)
+
+        return buffer
+
+    def S(self, X): return driver.execute_script(
+        'return document.body.parentNode.scroll'+X)
 
     @permission_classes(IsAuthenticated)
     def post(self, request, **kwargs):
@@ -187,18 +192,19 @@ class ArticleAPIView(APIView):
 
         serializer.is_valid(raise_exception=True)
 
-        # * sync
-        img = self.playwright(url_address)
-        response = self.upload_cloudinary(img, user, slug)
-        img_url = response['url']
+        # config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
+        # pdf = pdfkit.from_url(url_address, False, configuration=config)
 
-        # * async
-        # image = asyncio.run(self.main(url_address))
+        #! playwright
+        # img = self.playwright(url_address)
+        # url = self.upload_cloudinary(img, user, slug)
+        # url = self.upload_cloudinary(url_address, user, slug)
 
+        # img_url = url
         '''
         Key => articles/2/how to deploy django
         '''
-        data['file_url'] = img_url
+        # data['file_url'] = img_url
 
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
@@ -235,15 +241,6 @@ class ArticleAPIView(APIView):
 #         return False
 
 
-# chrome_options = webdriver.ChromeOptions()
-# chrome_options.add_argument("--headless")
-# chrome_options.add_argument('--disable-dev-shm-usage')
-# chrome_options.add_argument("--no-sandbox")
-# chrome_options.add_argument('--enable-print-browser')
-# chrome_options.add_argument('--disable-gpu')
-# chrome_options.binary_location = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-
-
 # def send_devtools(driver, cmd, params={}):
 #     resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
 #     url = driver.command_executor._url + resource
@@ -254,17 +251,6 @@ class ArticleAPIView(APIView):
 #         return response.get('value')
 #     else:
 #         return None
-
-
-# def save_as_pdf(driver, options={}):
-#     result = send_devtools(driver, "Page.printToPDF", options)
-#     if (result is not None):
-#         buffer = BytesIO.BytesIO()
-#         content = base64.b64decode(result['data'])
-#         buffer.write(content)
-#         return buffer
-#     else:
-#         return False
 
 
 # class ArticleUploadUrl(APIView):

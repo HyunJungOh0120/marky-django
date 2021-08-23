@@ -18,7 +18,7 @@ django-storages==1.11.1
 djangorestframework==3.12.4
 djangorestframework-simplejwt==4.8.0
 fake-useragent==0.1.11
-greenlet==1.1.1
+greenlet==1.0a1
 gunicorn==20.1.0
 idna==3.2
 importlib-metadata==4.6.4
@@ -26,9 +26,10 @@ jmespath==0.10.0
 lxml==4.6.3
 Markdown==3.3.4
 parse==1.19.0
+pdfkit==0.6.1
 pikepdf==2.16.1
 Pillow==8.3.1
-playwright==1.14.0
+playwright==0.162.2
 psycopg2==2.9.1
 pycodestyle==2.7.0
 pyee==8.2.2
@@ -42,11 +43,13 @@ PyQt6-Qt6==6.1.2
 PyQt6-sip==13.1.0
 pyquery==1.4.3
 python-dateutil==2.8.2
+python-dotenv==0.19.0
 python-slugify==5.0.2
 pytz==2021.1
 requests==2.26.0
 requests-html==0.10.0
 s3transfer==0.5.0
+selenium==3.141.0
 selenium-stealth==1.0.6
 six==1.16.0
 soupsieve==2.2.1
