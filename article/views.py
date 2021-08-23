@@ -107,13 +107,13 @@ class ArticleAPIView(APIView):
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def upload_cloudinary(self, file, user, slug):
+    def upload_cloudinary(self, url, user, slug):
 
-        response = cloudinary.uploader.upload(file,
-                                              folder=f'article/{user}/',
-                                              overwrite=True,
+        response = cloudinary.uploader.explicit(url,
+                                                folder=f'article/{user}/',
+                                                overwrite=True,
 
-                                              )
+                                                )
 
         url = response['url']
 
@@ -198,7 +198,7 @@ class ArticleAPIView(APIView):
         #! playwright
         # img = self.playwright(url_address)
         # url = self.upload_cloudinary(img, user, slug)
-        # url = self.upload_cloudinary(url_address, user, slug)
+        url = self.upload_cloudinary(url_address, user, slug)
 
         # img_url = url
         '''
