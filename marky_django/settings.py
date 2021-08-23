@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+from logging import DEBUG
 import django_heroku
 import os
 from datetime import timedelta
@@ -37,7 +38,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
-
+DEBUG = False
 
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'user.MyUser'
