@@ -40,7 +40,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'user.MyUser'
 
 # Application definition
