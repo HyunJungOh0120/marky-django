@@ -9,7 +9,7 @@ from os import fwalk
 import cloudinary
 import cloudinary.api
 import cloudinary.uploader
-import pdfkit
+# import pdfkit
 import requests
 from bs4 import BeautifulSoup
 from django.http import FileResponse
@@ -130,31 +130,31 @@ class ArticleAPIView(APIView):
     #         browser.close()
     #         return img
 
-    def screenshot(self, options={}):
-        page_rect = driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
-        base_64_png = driver.execute_cdp_cmd(
-            "Page.captureScreenshot",
-            {
-                "format": "png",
-                "captureBeyondViewport": True,
-                "clip": {
-                    "width": page_rect["contentSize"]["width"],
-                    "height": page_rect["contentSize"]["height"],
-                    "x": 0,
-                    "y": 0,
-                    "scale": 1
-                }
-            })
+    # def screenshot(self, options={}):
+    #     page_rect = driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
+    #     base_64_png = driver.execute_cdp_cmd(
+    #         "Page.captureScreenshot",
+    #         {
+    #             "format": "png",
+    #             "captureBeyondViewport": True,
+    #             "clip": {
+    #                 "width": page_rect["contentSize"]["width"],
+    #                 "height": page_rect["contentSize"]["height"],
+    #                 "x": 0,
+    #                 "y": 0,
+    #                 "scale": 1
+    #             }
+    #         })
 
-        buffer = io.BytesIO()
-        content = base64.b64decode(base_64_png['data'])
-        buffer.write(content)
-        buffer.seek(0)
+    #     buffer = io.BytesIO()
+    #     content = base64.b64decode(base_64_png['data'])
+    #     buffer.write(content)
+    #     buffer.seek(0)
 
-        return buffer
+    #     return buffer
 
-    def S(self, X): return driver.execute_script(
-        'return document.body.parentNode.scroll'+X)
+    # def S(self, X): return driver.execute_script(
+    #     'return document.body.parentNode.scroll'+X)
 
     @permission_classes(IsAuthenticated)
     def post(self, request, **kwargs):

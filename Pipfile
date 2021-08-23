@@ -21,7 +21,6 @@ django-storages = "*"
 python-slugify = "*"
 pyjwt = "*"
 cloudinary = "*"
-pdfkit = "*"
 python-dotenv = "*"
 
 [dev-packages]
