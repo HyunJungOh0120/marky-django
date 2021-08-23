@@ -29,7 +29,6 @@ parse==1.19.0
 pdfkit==0.6.1
 pikepdf==2.16.1
 Pillow==8.3.1
-playwright==0.162.2
 psycopg2==2.9.1
 pycodestyle==2.7.0
 pyee==8.2.2
