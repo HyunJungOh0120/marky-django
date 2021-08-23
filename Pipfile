@@ -22,7 +22,6 @@ python-slugify = "*"
 pyjwt = "*"
 cloudinary = "*"
 pdfkit = "*"
-selenium = "*"
 python-dotenv = "*"
 
 [dev-packages]

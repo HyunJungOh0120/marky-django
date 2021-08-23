@@ -74,15 +74,15 @@ class OneArticleAPIView(APIView):
         return Response({"message": "Article is removed"}, status=status.HTTP_204_NO_CONTENT)
 
 
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument("--headless")
-chrome_options.add_argument('--disable-dev-shm-usage')
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument('--enable-print-browser')
-chrome_options.add_argument('--disable-gpu')
-chrome_options.binary_location = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-driver = webdriver.Chrome(
-    executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options)
+# chrome_options = webdriver.ChromeOptions()
+# chrome_options.add_argument("--headless")
+# chrome_options.add_argument('--disable-dev-shm-usage')
+# chrome_options.add_argument("--no-sandbox")
+# chrome_options.add_argument('--enable-print-browser')
+# chrome_options.add_argument('--disable-gpu')
+# chrome_options.binary_location = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+# driver = webdriver.Chrome(
+#     executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options)
 
 
 class ArticleAPIView(APIView):

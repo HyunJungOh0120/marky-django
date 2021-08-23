@@ -48,7 +48,6 @@ pytz==2021.1
 requests==2.26.0
 requests-html==0.10.0
 s3transfer==0.5.0
-selenium==3.141.0
 selenium-stealth==1.0.6
 six==1.16.0
 soupsieve==2.2.1
